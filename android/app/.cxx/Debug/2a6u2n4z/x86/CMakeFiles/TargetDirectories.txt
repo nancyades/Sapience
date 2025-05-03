@@ -1,0 +1,2 @@
+D:/New changes/sapience/android/app/.cxx/Debug/2a6u2n4z/x86/CMakeFiles/edit_cache.dir
+D:/New changes/sapience/android/app/.cxx/Debug/2a6u2n4z/x86/CMakeFiles/rebuild_cache.dir

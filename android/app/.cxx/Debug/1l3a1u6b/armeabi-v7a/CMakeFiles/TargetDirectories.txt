@@ -1,0 +1,2 @@
+D:/muthuproject/schoolapp-master/android/app/.cxx/Debug/1l3a1u6b/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/muthuproject/schoolapp-master/android/app/.cxx/Debug/1l3a1u6b/armeabi-v7a/CMakeFiles/rebuild_cache.dir
