@@ -24,6 +24,7 @@ class GlobalState {
 void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
+  await SharedPreferences.getInstance();
   bool isLoggedIn = await getLoginStatus();
   HttpOverrides.global = MyHttpOverrides();
  ErrorWidget.builder = (_) => errorPage();
@@ -31,7 +32,7 @@ void main() async {
       child: MyApp(
     isLoggedIn: isLoggedIn,
   )));
-  await SharedPreferences.getInstance();
+
 }
 
 Future<bool> getLoginStatus() async {
@@ -60,10 +61,11 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: SystemUiOverlay.values);
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     GlobalState.version = '1.3';
     getroute();
-    WidgetsBinding.instance.addObserver(this);
+
     AudioService().playMusic();
     _connectivity = Connectivity();
    // _connectivitySubscription = _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
@@ -92,7 +94,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: SystemUiOverlay.values);
     WidgetsBinding.instance.removeObserver(this);
-    AudioService().disposeMusic();
+   // AudioService().disposeMusic();
     _connectivitySubscription.cancel();
     super.dispose();
   }
@@ -100,7 +102,20 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
+
     if (state == AppLifecycleState.paused) {
+      AudioService().pauseMusic(); // Just pause
+    } else if (state == AppLifecycleState.resumed) {
+      if (GlobalState.activeScreen == 'SpecificScreen') {
+        AudioService().pauseMusic(); // Still pause if it's a no-sound screen
+      } else {
+        AudioService().resumeMusic(); // Resume background audio
+      }
+    }
+
+
+
+    /* if (state == AppLifecycleState.paused) {
       AudioService().stopMusic();
     } else if (state == AppLifecycleState.resumed) {
       if (GlobalState.activeScreen == 'SpecificScreen') {
@@ -108,7 +123,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       } else {
         AudioService().playMusic();
       }
-    }
+    }*/
+
+
   }
 
   @override

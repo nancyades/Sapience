@@ -292,10 +292,12 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
                   SnackbarUtil.showNetworkError();
                 }
                if (snapshot != null) {
-  return widget.subjectName == "Tamil" ? SizedBox() : Container(
+  return
+    //widget.subjectName == "Tamil" ? SizedBox() :
+  Container(
     margin: const EdgeInsets.only(left: 10, right: 10),
     padding: const EdgeInsets.all(2),
-    width: 350,
+    width: 340,
     height: 42,
     decoration: BoxDecoration(
       color: Colors.white,
@@ -306,11 +308,14 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
         : DefaultTabController(
       length: snapshot['data'].length,
       child: TabBar(
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
+        //labelPadding: EdgeInsets.zero,
         controller: _tabController,
         tabs: List<Widget>.generate(snapshot['data'].length, (index) {
           return Tab(
             child: Padding(
-              padding: const EdgeInsets.all(0),
+              padding: const EdgeInsets.all(12),
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
@@ -325,6 +330,7 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
           );
         }),
         indicator: BoxDecoration(
+
           borderRadius: BorderRadius.circular(25),
           color: const Color(0xffb673d0),
         ),
@@ -457,6 +463,8 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
                 ),
               );
             }),
+
+
             Expanded(
               child: Consumer(builder: (context, ref, child) {
                 final videoState = ref.watch(addvideoNotifier);

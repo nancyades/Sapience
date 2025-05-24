@@ -1,0 +1,2 @@
+C:/flutterproject/sapience/android/app/.cxx/RelWithDebInfo/4n533k1r/x86_64/CMakeFiles/edit_cache.dir
+C:/flutterproject/sapience/android/app/.cxx/RelWithDebInfo/4n533k1r/x86_64/CMakeFiles/rebuild_cache.dir

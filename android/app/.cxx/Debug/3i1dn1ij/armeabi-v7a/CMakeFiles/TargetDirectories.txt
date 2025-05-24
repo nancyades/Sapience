@@ -1,0 +1,2 @@
+C:/flutterproject/sapience/android/app/.cxx/Debug/3i1dn1ij/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/flutterproject/sapience/android/app/.cxx/Debug/3i1dn1ij/armeabi-v7a/CMakeFiles/rebuild_cache.dir

@@ -19,7 +19,7 @@ class AudioService {
     await _audioPlayer.setSource(AssetSource('audio/Happy_Kids.mp3'));
     await _audioPlayer.setReleaseMode(ReleaseMode.loop); // Ensures the audio loops
     await _audioPlayer.setVolume(0.3);
-    await _audioPlayer.resume();
+   await _audioPlayer.resume();
   }
 
 
@@ -38,6 +38,10 @@ class AudioService {
     _audioPlayer.dispose();
   }
 }
+
+
+
+
 
 
 

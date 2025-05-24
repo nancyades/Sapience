@@ -1,3 +1,4 @@
+
 import 'dart:developer';
 import 'dart:io';
 
@@ -6,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:sapience/Controller/Provider/bookqrprovider.dart';
 import 'package:sapience/Controller/Provider/generalprovider.dart';
 import 'package:sapience/Screens/ParentScreen/parentwelcomescreen.dart';
@@ -24,8 +25,8 @@ class QRViewScanner extends ConsumerStatefulWidget {
 }
 
 class _QRViewScannerState extends ConsumerState<QRViewScanner> {
-  //Barcode? result;
-  //QRViewController? controller;
+  Barcode? result;
+  QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   bool hasScanned = false; // Flag to track if a scan has already occurred
   bool hasShownPermissionSnackBar = false; // Flag to track if the SnackBar has been shown
@@ -34,9 +35,9 @@ class _QRViewScannerState extends ConsumerState<QRViewScanner> {
   void reassemble() {
     super.reassemble();
     if (Platform.isAndroid) {
-      //controller!.pauseCamera();
+      controller!.pauseCamera();
     }
-    //controller!.resumeCamera();
+    controller!.resumeCamera();
   }
 
   @override
@@ -68,13 +69,13 @@ class _QRViewScannerState extends ConsumerState<QRViewScanner> {
       ),
       body: Column(
         children: <Widget>[
-         // Expanded(flex: 4, child: _buildQrView(context)),
+          Expanded(flex: 4, child: _buildQrView(context)),
         ],
       ),
     );
   }
 
-  /*Widget _buildQrView(BuildContext context) {
+  Widget _buildQrView(BuildContext context) {
     var scanArea = (MediaQuery.of(context).size.width < 400 ||
         MediaQuery.of(context).size.height < 400)
         ? 150.0
@@ -90,9 +91,9 @@ class _QRViewScannerState extends ConsumerState<QRViewScanner> {
           cutOutSize: scanArea),
       onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
     );
-  }*/
+  }
 
- /* void _onQRViewCreated(QRViewController controller) {
+  void _onQRViewCreated(QRViewController controller) {
     setState(() {
       this.controller = controller;
     });
@@ -155,8 +156,8 @@ class _QRViewScannerState extends ConsumerState<QRViewScanner> {
       );
     });
   }
-*/
- /* void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
+
+  void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
     log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
     if (!p && !hasShownPermissionSnackBar) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -170,10 +171,10 @@ class _QRViewScannerState extends ConsumerState<QRViewScanner> {
       );
     }
   }
-*/
+
   @override
   void dispose() {
-   // controller?.dispose();
+    controller?.dispose();
     super.dispose();
   }
 }

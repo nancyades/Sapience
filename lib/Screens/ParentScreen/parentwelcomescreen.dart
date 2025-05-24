@@ -56,7 +56,6 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
 
   @override
   void initState() {
-
     gettoken();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: SystemUiOverlay.values);
@@ -68,7 +67,6 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
     _isDialogShownsetting = false;
     _isLoadingList = [];
     GlobalState.isLoadingList = [];
-
   }
 
   gettoken() async {
@@ -82,13 +80,11 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
     });
 
     if (isOnline) {
-        ref.refresh(getSectionNotifier);
-        ref.refresh(getsettingNotifier);
-       await ref.read(getSectionNotifier);
-       await ref.read(getsettingNotifier);
-    } else {
-
-    }
+      ref.refresh(getSectionNotifier);
+      ref.refresh(getsettingNotifier);
+      await ref.read(getSectionNotifier);
+      await ref.read(getsettingNotifier);
+    } else {}
   }
 
   @override
@@ -126,7 +122,7 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
         }
         break;
       case 1:
-        if(_isOnline){
+        if (_isOnline) {
           Navigator.of(context)
               .push(MaterialPageRoute(
             builder: (context) => const QRViewScanner(),
@@ -161,8 +157,8 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     bool isTvScreen = MediaQuery.of(context).size.width >= 540;
-    return  Scaffold(body: isTvScreen ? buildLandscapeLayout() : buildPortraitLayout());
-
+    return Scaffold(
+        body: isTvScreen ? buildLandscapeLayout() : buildPortraitLayout());
   }
 
   Widget buildPortraitLayout() {
@@ -242,9 +238,7 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
                                                                     true;
                                                               });
 
-                                                              AudioPlayer().play(
-                                                                  AssetSource(
-                                                                      "audio/Bubble 02.mp3"));
+                                                              AudioPlayer().play(AssetSource("audio/Bubble 02.mp3"));
                                                               await handleAPIsAndNavigate(
                                                                   context,
                                                                   index,
@@ -521,104 +515,106 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
                                         snapshot['data']['food_videos'] ==
                                             "enabled"
                                     ? ElevatedButton(
-                                  onPressed: _disableButtons
-                                      ? null
-                                      : () async {
-                                     ref.refresh(getfoodcategoryNotifier);
-                                      ref.refresh(getfooddaysNotifier);
-                                     ref.refresh(getfoodtypesNotifier);
-                                    AudioPlayer().play(
-                                        AssetSource(
-                                            "audio/Bubble 02.mp3"));
-                                    setState(() {
-                                      isloading = true;
-                                      _disableButtons = true;
-                                    });
-                                    await Future.delayed(
-                                        const Duration(
-                                            milliseconds: 500));
-                                    await ref.read(getfoodcategoryNotifier.future);
-                                    await ref.read(getfooddaysNotifier.future);
-                                     await ref.read(getfoodtypesNotifier);
+                                        onPressed: _disableButtons
+                                            ? null
+                                            : () async {
+                                                ref.refresh(
+                                                    getfoodcategoryNotifier);
+                                                ref.refresh(
+                                                    getfooddaysNotifier);
+                                                ref.refresh(
+                                                    getfoodtypesNotifier);
+                                                AudioPlayer().play(AssetSource(
+                                                    "audio/Bubble 02.mp3"));
+                                                setState(() {
+                                                  isloading = true;
+                                                  _disableButtons = true;
+                                                });
+                                                await Future.delayed(
+                                                    const Duration(
+                                                        milliseconds: 500));
+                                                await ref.read(
+                                                    getfoodcategoryNotifier
+                                                        .future);
+                                                await ref.read(
+                                                    getfooddaysNotifier.future);
+                                                await ref
+                                                    .read(getfoodtypesNotifier);
 
-                                    var videocategorydata = await ref.read(getfoodcategoryNotifier).value;
+                                                var videocategorydata = await ref
+                                                    .read(
+                                                        getfoodcategoryNotifier)
+                                                    .value;
 
-                                     var foodays = await ref.read(getfooddaysNotifier).value;
+                                                var foodays = await ref
+                                                    .read(getfooddaysNotifier)
+                                                    .value;
 
+                                                if (videocategorydata ==
+                                                        "Nocache" ||
+                                                    foodays == "Nocache") {
+                                                  SnackbarUtil
+                                                      .showNetworkError();
+                                                  setState(() {
+                                                    isloading =
+                                                        false; // Stop showing loading indicator on error
+                                                    _disableButtons = false;
+                                                  });
+                                                } else {
+                                                  foodcategory =
+                                                      videocategorydata['data']
+                                                              [0]['id']
+                                                          .toString();
+                                                  fooddays = foodays['data'][0]
+                                                          ['id']
+                                                      .toString();
 
-                                    if (videocategorydata ==
-                                        "Nocache" || foodays  == "Nocache") {
-                                       SnackbarUtil.showNetworkError();
-                                      setState(() {
-                                        isloading = false; // Stop showing loading indicator on error
-                                        _disableButtons = false;
-                                      });
-                                    } else {
-
-                                      foodcategory = videocategorydata['data'][0]['id'].toString();
-                                      fooddays = foodays['data'][0]['id'].toString();
-
-
-
-
-
-                                      Get.to(
-                                            () => HealthyMealChart(
-                                          foodcategory:
-                                          foodcategory,
-                                          fooday: fooddays,
-                                        ),
-                                        // transition: Transition
-                                        //     .rightToLeft,
-                                        // duration: const Duration(
-                                        //     milliseconds: 500),
-                                      );
-                                        setState(() {
-                                          isloading = false;
-                                          _disableButtons = false;
-                                        });
-
-                                    }
-                                  },
-                                  style: ButtonStyle(
-                                    elevation: MaterialStateProperty
-                                        .resolveWith<double>(
-                                          (Set<MaterialState>
-                                      states) {
-                                        return states.contains(
-                                            MaterialState
-                                                .disabled)
-                                            ? 0.0
-                                            : 10.0;
-                                      },
-                                    ),
-                                    foregroundColor:
-                                    MaterialStateProperty
-                                        .resolveWith<Color>(
-                                          (Set<MaterialState>
-                                      states) {
-                                        return states.contains(
-                                            MaterialState
-                                                .disabled)
-
-                                        ? const Color(0xffa96414)
-                                            : const Color(0xffF3933F);
-
-                                      },
-                                    ),
-                                    backgroundColor:
-                                    MaterialStateProperty
-                                        .resolveWith<Color>(
-                                          (Set<MaterialState>
-                                      states) {
-                                        return states.contains(
-                                            MaterialState
-                                                .disabled)
-                                            ? const Color(0xffa96414)
-                                            : const Color(0xffF3933F);
-                                      },
-                                    ),
-                                    /*backgroundColor: isloading
+                                                  Get.to(
+                                                    () => HealthyMealChart(
+                                                      foodcategory:
+                                                          foodcategory,
+                                                      fooday: fooddays,
+                                                    ),
+                                                    // transition: Transition
+                                                    //     .rightToLeft,
+                                                    // duration: const Duration(
+                                                    //     milliseconds: 500),
+                                                  );
+                                                  setState(() {
+                                                    isloading = false;
+                                                    _disableButtons = false;
+                                                  });
+                                                }
+                                              },
+                                        style: ButtonStyle(
+                                          elevation: MaterialStateProperty
+                                              .resolveWith<double>(
+                                            (Set<MaterialState> states) {
+                                              return states.contains(
+                                                      MaterialState.disabled)
+                                                  ? 0.0
+                                                  : 10.0;
+                                            },
+                                          ),
+                                          foregroundColor: MaterialStateProperty
+                                              .resolveWith<Color>(
+                                            (Set<MaterialState> states) {
+                                              return states.contains(
+                                                      MaterialState.disabled)
+                                                  ? const Color(0xffa96414)
+                                                  : const Color(0xffF3933F);
+                                            },
+                                          ),
+                                          backgroundColor: MaterialStateProperty
+                                              .resolveWith<Color>(
+                                            (Set<MaterialState> states) {
+                                              return states.contains(
+                                                      MaterialState.disabled)
+                                                  ? const Color(0xffa96414)
+                                                  : const Color(0xffF3933F);
+                                            },
+                                          ),
+                                          /*backgroundColor: isloading
                                         ? const Color(0xffa96414)
                                         : Color(0xffF3933F),*/
 
@@ -646,7 +642,7 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
                                 WidgetsBinding.instance
                                     .addPostFrameCallback((_) {
                                   if (mounted && !_isDialogShownsetting) {
-                                     _showTimeoutDialog();
+                                    _showTimeoutDialog();
                                   }
                                 });
                                 return ShimmerSkeleton(
@@ -937,7 +933,7 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
                   ),
                 ).animate().shimmer(duration: 1800.ms),
               ),
-             /* Positioned(
+              /* Positioned(
                   bottom: 10,
                   right: 20,
                   child: Text("v${GlobalState.version.toString()}"))*/
@@ -959,325 +955,330 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
               child: Container(
                 decoration: const BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage("assets/images/sapience/landscapeimages/Home-scr1.png"),
+                    image: AssetImage(
+                        "assets/images/sapience/landscapeimages/Home-scr1.png"),
                     fit: BoxFit.contain,
                   ),
                 ),
                 child: Padding(
-                  padding:  EdgeInsets.only(
-                      right:  MediaQuery.of(context).size.width * 0.6,
-                      top: MediaQuery.of(context).size.height * 0.46,
-
+                  padding: EdgeInsets.only(
+                    right: MediaQuery.of(context).size.width * 0.6,
+                    top: MediaQuery.of(context).size.height * 0.46,
                   ),
                   child: Column(
                     children: [
                       Flexible(
                         child: ref.watch(getSectionNotifier).when(
-                          data: (snapshot) {
-                            try {
-                              if (snapshot != null) {
-                                if (snapshot == "Nocache") {
-                                  if (!_isOnline) {
-                                    if (!_isDialogShown) {
-                                      _isDialogShown = true;
-                                      SnackbarUtil.showNetworkError();
+                              data: (snapshot) {
+                                try {
+                                  if (snapshot != null) {
+                                    if (snapshot == "Nocache") {
+                                      if (!_isOnline) {
+                                        if (!_isDialogShown) {
+                                          _isDialogShown = true;
+                                          SnackbarUtil.showNetworkError();
+                                        }
+                                      }
                                     }
-                                  }
-                                }
 
-                                if (_isLoadingList.isEmpty) {
-                                  _isLoadingList = List<bool>.filled(
-                                      snapshot['data'].length, false);
-                                }
+                                    if (_isLoadingList.isEmpty) {
+                                      _isLoadingList = List<bool>.filled(
+                                          snapshot['data'].length, false);
+                                    }
 
-                                return ListView.builder(
-                                  padding: const EdgeInsets.all(2),
-                                  shrinkWrap: true,
-                                  itemCount: snapshot['data'].length,
-                                  itemBuilder: (context, index) {
-                                    return Center(
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            bottom: 8.0),
-                                        child: ElevatedButton(
-                                          onPressed: _disableButtons
-                                              ? null
-                                              : _loadingIndex != null
-                                              ? null
-                                              : () async {
-                                            setState(() {
-                                              _loadingIndex =
-                                                  index;
-                                              _disableButtons =
-                                              true;
-                                            });
+                                    return ListView.builder(
+                                      padding: const EdgeInsets.all(2),
+                                      shrinkWrap: true,
+                                      itemCount: snapshot['data'].length,
+                                      itemBuilder: (context, index) {
+                                        return Center(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 8.0),
+                                            child: ElevatedButton(
+                                              onPressed: _disableButtons
+                                                  ? null
+                                                  : _loadingIndex != null
+                                                      ? null
+                                                      : () async {
+                                                          setState(() {
+                                                            _loadingIndex =
+                                                                index;
+                                                            _disableButtons =
+                                                                true;
+                                                          });
 
-                                            AudioPlayer().play(
-                                                AssetSource(
-                                                    "audio/Bubble 02.mp3"));
-                                            await handleAPIsAndNavigate(
-                                                context,
-                                                index,
-                                                snapshot);
-                                          },
-                                          style: ButtonStyle(
-                                            elevation:
-                                            MaterialStateProperty
-                                                .resolveWith<
-                                                double>(
-                                                  (Set<MaterialState>
-                                              states) {
-                                                return states.contains(
-                                                    MaterialState
-                                                        .disabled)
-                                                    ? 0.0
-                                                    : 10.0;
-                                              },
-                                            ),
-                                            foregroundColor:
-                                            MaterialStateProperty
-                                                .resolveWith<Color>(
-                                                  (Set<MaterialState>
-                                              states) {
-                                                return states.contains(
-                                                    MaterialState
-                                                        .disabled)
-                                                    ? (snapshot['data'][index]
-                                                [
-                                                'name']
-                                                    .toString() ==
-                                                    "LKG"
-                                                    ? Colors.purple
-                                                    .shade600
-                                                    : Colors.pink
-                                                    .shade600)
-                                                    : (snapshot['data'][index]
-                                                [
-                                                'name']
-                                                    .toString() ==
-                                                    "LKG"
-                                                    ? Colors.purple
-                                                    .shade300
-                                                    : Colors.pink
-                                                    .shade300);
-                                              },
-                                            ),
-                                            backgroundColor:
-                                            MaterialStateProperty
-                                                .resolveWith<Color>(
-                                                  (Set<MaterialState>
-                                              states) {
-                                                return states.contains(
-                                                    MaterialState
-                                                        .disabled)
-                                                    ? (snapshot['data'][index]
-                                                [
-                                                'name']
-                                                    .toString() ==
-                                                    "LKG"
-                                                    ? Colors.purple
-                                                    .shade600
-                                                    : Colors.pink
-                                                    .shade600)
-                                                    : (snapshot['data'][index]
-                                                [
-                                                'name']
-                                                    .toString() ==
-                                                    "LKG"
-                                                    ? Colors.purple
-                                                    .shade300
-                                                    : Colors.pink
-                                                    .shade300);
-                                              },
-                                            ),
-                                            minimumSize:
-                                            MaterialStateProperty
-                                                .all<Size>(
-                                                 Size(
-                                                      MediaQuery.of(context).size.width * 0.17,
-                                                    MediaQuery.of(context).size.height * 0.09,
-                                                     )),
-                                            overlayColor:
-                                            MaterialStateProperty
-                                                .resolveWith<
-                                                Color?>(
-                                                  (Set<MaterialState>
-                                              states) {
-                                                if (states.contains(
-                                                    MaterialState
-                                                        .pressed)) {
-                                                  return snapshot['data']
-                                                  [
-                                                  index]
-                                                  [
-                                                  'name']
-                                                      .toString() ==
-                                                      "LKG"
-                                                      ? Colors
-                                                      .purple[600]
-                                                      : Colors
-                                                      .pink[600];
-                                                }
-                                                return null;
-                                              },
+                                                          AudioPlayer().play(
+                                                              AssetSource(
+                                                                  "audio/Bubble 02.mp3"));
+                                                          await handleAPIsAndNavigate(
+                                                              context,
+                                                              index,
+                                                              snapshot);
+                                                        },
+                                              style: ButtonStyle(
+                                                elevation: MaterialStateProperty
+                                                    .resolveWith<double>(
+                                                  (Set<MaterialState> states) {
+                                                    return states.contains(
+                                                            MaterialState
+                                                                .disabled)
+                                                        ? 0.0
+                                                        : 10.0;
+                                                  },
+                                                ),
+                                                foregroundColor:
+                                                    MaterialStateProperty
+                                                        .resolveWith<Color>(
+                                                  (Set<MaterialState> states) {
+                                                    return states.contains(
+                                                            MaterialState
+                                                                .disabled)
+                                                        ? (snapshot['data'][index]
+                                                                        ['name']
+                                                                    .toString() ==
+                                                                "LKG"
+                                                            ? Colors
+                                                                .purple.shade600
+                                                            : Colors
+                                                                .pink.shade600)
+                                                        : (snapshot['data'][index]
+                                                                        ['name']
+                                                                    .toString() ==
+                                                                "LKG"
+                                                            ? Colors
+                                                                .purple.shade300
+                                                            : Colors
+                                                                .pink.shade300);
+                                                  },
+                                                ),
+                                                backgroundColor:
+                                                    MaterialStateProperty
+                                                        .resolveWith<Color>(
+                                                  (Set<MaterialState> states) {
+                                                    return states.contains(
+                                                            MaterialState
+                                                                .disabled)
+                                                        ? (snapshot['data'][index]
+                                                                        ['name']
+                                                                    .toString() ==
+                                                                "LKG"
+                                                            ? Colors
+                                                                .purple.shade600
+                                                            : Colors
+                                                                .pink.shade600)
+                                                        : (snapshot['data'][index]
+                                                                        ['name']
+                                                                    .toString() ==
+                                                                "LKG"
+                                                            ? Colors
+                                                                .purple.shade300
+                                                            : Colors
+                                                                .pink.shade300);
+                                                  },
+                                                ),
+                                                minimumSize:
+                                                    MaterialStateProperty.all<
+                                                        Size>(Size(
+                                                  MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.17,
+                                                  MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.09,
+                                                )),
+                                                overlayColor:
+                                                    MaterialStateProperty
+                                                        .resolveWith<Color?>(
+                                                  (Set<MaterialState> states) {
+                                                    if (states.contains(
+                                                        MaterialState
+                                                            .pressed)) {
+                                                      return snapshot['data'][
+                                                                          index]
+                                                                      ['name']
+                                                                  .toString() ==
+                                                              "LKG"
+                                                          ? Colors.purple[600]
+                                                          : Colors.pink[600];
+                                                    }
+                                                    return null;
+                                                  },
+                                                ),
+                                              ),
+                                              child: _loadingIndex == index
+                                                  ? LoadingAnimationWidget
+                                                      .staggeredDotsWave(
+                                                      color: Colors.white,
+                                                      size: 50,
+                                                    )
+                                                  : Text(
+                                                      snapshot['data'][index]
+                                                              ['name']
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                        fontSize: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.015,
+                                                        color:
+                                                            AppTheme.whitecolor,
+                                                        letterSpacing: 2,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
                                             ),
                                           ),
-                                          child: _loadingIndex == index
-                                              ? LoadingAnimationWidget
-                                              .staggeredDotsWave(
-                                            color: Colors.white,
-                                            size: 50,
-                                          )
-                                              : Text(
-                                            snapshot['data']
-                                            [index]
-                                            ['name']
-                                                .toString(),
-                                            style:
-                                             TextStyle(
-                                              fontSize: MediaQuery.of(context).size.width * 0.015,
-                                              color: AppTheme
-                                                  .whitecolor,
-                                              letterSpacing: 2,
-                                              fontWeight:
-                                              FontWeight.bold,
+                                        );
+                                      },
+                                    );
+                                  } else {
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                      if (mounted && !_isDialogShown) {
+                                        _showTimeoutDialog();
+                                      }
+                                    });
+                                    return ShimmerSkeleton(
+                                      child: ListView.builder(
+                                        padding: const EdgeInsets.all(2),
+                                        shrinkWrap: true,
+                                        itemCount: 2,
+                                        itemBuilder: (context, index) {
+                                          return Center(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 8.0),
+                                              child: ElevatedButton(
+                                                onPressed: () async {},
+                                                style: ElevatedButton.styleFrom(
+                                                  elevation: 10.0,
+                                                  backgroundColor:
+                                                      Colors.pink[300],
+                                                  minimumSize: Size(
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.17,
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .height *
+                                                        0.09,
+                                                  ),
+                                                ),
+                                                child: const Text(
+                                                  "LKG",
+                                                  style: TextStyle(
+                                                    fontSize:
+                                                        AppTheme.mediumFontSize,
+                                                    color: AppTheme.whitecolor,
+                                                    letterSpacing: 2,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
+                                          );
+                                        },
                                       ),
                                     );
-                                  },
-                                );
-                              } else {
-                                WidgetsBinding.instance
-                                    .addPostFrameCallback((_) {
-                                  if (mounted && !_isDialogShown) {
-                                    _showTimeoutDialog();
                                   }
-                                });
-                                return ShimmerSkeleton(
-                                  child: ListView.builder(
+                                } catch (e) {
+                                  return ShimmerSkeleton(
+                                    child: ListView.builder(
+                                      padding: const EdgeInsets.all(2),
+                                      shrinkWrap: true,
+                                      itemCount: 2,
+                                      itemBuilder: (context, index) {
+                                        return Center(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 8.0),
+                                            child: ElevatedButton(
+                                              onPressed: () async {},
+                                              style: ElevatedButton.styleFrom(
+                                                elevation: 10.0,
+                                                backgroundColor:
+                                                    Colors.pink[300],
+                                                minimumSize: Size(
+                                                  MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.17,
+                                                  MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.09,
+                                                ),
+                                              ),
+                                              child: const Text(
+                                                "LKG",
+                                                style: TextStyle(
+                                                  fontSize:
+                                                      AppTheme.mediumFontSize,
+                                                  color: AppTheme.whitecolor,
+                                                  letterSpacing: 2,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                }
+                              },
+                              error: (e, s) {
+                                return const SizedBox();
+                              },
+                              loading: () => ShimmerSkeleton(
+                                child: ListView.builder(
                                     padding: const EdgeInsets.all(2),
                                     shrinkWrap: true,
                                     itemCount: 2,
+                                    //widget.loginModel!.data!.subscriptionListSection.length,
                                     itemBuilder: (context, index) {
                                       return Center(
                                         child: Padding(
-                                          padding:
-                                          const EdgeInsets.only(
+                                          padding: const EdgeInsets.only(
                                               bottom: 8.0),
                                           child: ElevatedButton(
                                             onPressed: () async {},
-                                            style: ElevatedButton
-                                                .styleFrom(
+                                            style: ElevatedButton.styleFrom(
                                               elevation: 10.0,
-                                              backgroundColor:
-                                              Colors.pink[300],
-                                              minimumSize:
-                                               Size(  MediaQuery.of(context).size.width * 0.17,
-                                                MediaQuery.of(context).size.height * 0.09,),
+                                              backgroundColor: Colors.pink[300],
+                                              minimumSize: Size(
+                                                MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.17,
+                                                MediaQuery.of(context)
+                                                        .size
+                                                        .height *
+                                                    0.09,
+                                              ),
                                             ),
                                             child: const Text(
                                               "LKG",
                                               style: TextStyle(
-                                                fontSize: AppTheme
-                                                    .mediumFontSize,
-                                                color:
-                                                AppTheme.whitecolor,
+                                                fontSize:
+                                                    AppTheme.mediumFontSize,
+                                                color: AppTheme.whitecolor,
                                                 letterSpacing: 2,
-                                                fontWeight:
-                                                FontWeight.bold,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                           ),
                                         ),
                                       );
-                                    },
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              return ShimmerSkeleton(
-                                child: ListView.builder(
-                                  padding: const EdgeInsets.all(2),
-                                  shrinkWrap: true,
-                                  itemCount: 2,
-                                  itemBuilder: (context, index) {
-                                    return Center(
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            bottom: 8.0),
-                                        child: ElevatedButton(
-                                          onPressed: () async {},
-                                          style:
-                                          ElevatedButton.styleFrom(
-                                            elevation: 10.0,
-                                            backgroundColor:
-                                            Colors.pink[300],
-                                            minimumSize:
-                                             Size(  MediaQuery.of(context).size.width * 0.17,
-                                              MediaQuery.of(context).size.height * 0.09,),
-                                          ),
-                                          child: const Text(
-                                            "LKG",
-                                            style: TextStyle(
-                                              fontSize: AppTheme
-                                                  .mediumFontSize,
-                                              color:
-                                              AppTheme.whitecolor,
-                                              letterSpacing: 2,
-                                              fontWeight:
-                                              FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
-                            }
-                          },
-                          error: (e, s) {
-                            return const SizedBox();
-                          },
-                          loading: () => ShimmerSkeleton(
-                            child: ListView.builder(
-                                padding: const EdgeInsets.all(2),
-                                shrinkWrap: true,
-                                itemCount: 2,
-                                //widget.loginModel!.data!.subscriptionListSection.length,
-                                itemBuilder: (context, index) {
-                                  return Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          bottom: 8.0),
-                                      child: ElevatedButton(
-                                        onPressed: () async {},
-                                        style: ElevatedButton.styleFrom(
-                                          elevation: 10.0,
-                                          backgroundColor:
-                                          Colors.pink[300],
-                                          minimumSize:
-                                           Size(  MediaQuery.of(context).size.width * 0.17,
-                                            MediaQuery.of(context).size.height * 0.09,),
-                                        ),
-                                        child: const Text(
-                                          "LKG",
-                                          style: TextStyle(
-                                            fontSize:
-                                            AppTheme.mediumFontSize,
-                                            color: AppTheme.whitecolor,
-                                            letterSpacing: 2,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }),
-                          ),
-                        ),
+                                    }),
+                              ),
+                            ),
                       ),
                       ref.watch(getsettingNotifier).when(data: (snapshot) {
                         try {
@@ -1292,133 +1293,126 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
                             }
 
                             return snapshot != null &&
-                                snapshot['data']['food_videos'] ==
-                                    "enabled"
+                                    snapshot['data']['food_videos'] == "enabled"
                                 ? ElevatedButton(
-                              onPressed: _disableButtons
-                                  ? null
-                                  : () async {
-                                ref.refresh(getfoodcategoryNotifier);
-                                ref.refresh(getfooddaysNotifier);
-                                ref.refresh(getfoodtypesNotifier);
-                                AudioPlayer().play(
-                                    AssetSource(
-                                        "audio/Bubble 02.mp3"));
-                                setState(() {
-                                  isloading = true;
-                                  _disableButtons = true;
-                                });
-                                await Future.delayed(
-                                    const Duration(
-                                        milliseconds: 500));
-                                await ref.read(getfoodcategoryNotifier.future);
-                                await ref.read(getfooddaysNotifier.future);
-                                await ref.read(getfoodtypesNotifier);
+                                    onPressed: _disableButtons
+                                        ? null
+                                        : () async {
+                                            ref.refresh(
+                                                getfoodcategoryNotifier);
+                                            ref.refresh(getfooddaysNotifier);
+                                            ref.refresh(getfoodtypesNotifier);
+                                            AudioPlayer().play(AssetSource(
+                                                "audio/Bubble 02.mp3"));
+                                            setState(() {
+                                              isloading = true;
+                                              _disableButtons = true;
+                                            });
+                                            await Future.delayed(const Duration(
+                                                milliseconds: 500));
+                                            await ref.read(
+                                                getfoodcategoryNotifier.future);
+                                            await ref.read(
+                                                getfooddaysNotifier.future);
+                                            await ref
+                                                .read(getfoodtypesNotifier);
 
-                                var videocategorydata = await ref.read(getfoodcategoryNotifier).value;
+                                            var videocategorydata = await ref
+                                                .read(getfoodcategoryNotifier)
+                                                .value;
 
-                                var foodays = await ref.read(getfooddaysNotifier).value;
+                                            var foodays = await ref
+                                                .read(getfooddaysNotifier)
+                                                .value;
 
+                                            if (videocategorydata ==
+                                                    "Nocache" ||
+                                                foodays == "Nocache") {
+                                              SnackbarUtil.showNetworkError();
+                                              setState(() {
+                                                isloading =
+                                                    false; // Stop showing loading indicator on error
+                                                _disableButtons = false;
+                                              });
+                                            } else {
+                                              foodcategory =
+                                                  videocategorydata['data'][0]
+                                                          ['id']
+                                                      .toString();
+                                              fooddays = foodays['data'][0]
+                                                      ['id']
+                                                  .toString();
 
-                                if (videocategorydata ==
-                                    "Nocache" || foodays  == "Nocache") {
-                                  SnackbarUtil.showNetworkError();
-                                  setState(() {
-                                    isloading = false; // Stop showing loading indicator on error
-                                    _disableButtons = false;
-                                  });
-                                } else {
-
-                                  foodcategory = videocategorydata['data'][0]['id'].toString();
-                                  fooddays = foodays['data'][0]['id'].toString();
-
-
-
-
-
-                                  Get.to(
-                                        () => HealthyMealChart(
-                                      foodcategory:
-                                      foodcategory,
-                                      fooday: fooddays,
-                                    ),
-                                    // transition: Transition
-                                    //     .rightToLeft,
-                                    // duration: const Duration(
-                                    //     milliseconds: 500),
-                                  );
-                                  setState(() {
-                                    isloading = false;
-                                    _disableButtons = false;
-                                  });
-
-                                }
-                              },
-                              style: ButtonStyle(
-                                elevation: MaterialStateProperty
-                                    .resolveWith<double>(
-                                      (Set<MaterialState>
-                                  states) {
-                                    return states.contains(
-                                        MaterialState
-                                            .disabled)
-                                        ? 0.0
-                                        : 10.0;
-                                  },
-                                ),
-                                foregroundColor:
-                                MaterialStateProperty
-                                    .resolveWith<Color>(
-                                      (Set<MaterialState>
-                                  states) {
-                                    return states.contains(
-                                        MaterialState
-                                            .disabled)
-
-                                        ? const Color(0xffa96414)
-                                        : const Color(0xffF3933F);
-
-                                  },
-                                ),
-                                backgroundColor:
-                                MaterialStateProperty
-                                    .resolveWith<Color>(
-                                      (Set<MaterialState>
-                                  states) {
-                                    return states.contains(
-                                        MaterialState
-                                            .disabled)
-                                        ? const Color(0xffa96414)
-                                        : const Color(0xffF3933F);
-                                  },
-                                ),
-                                /*backgroundColor: isloading
+                                              Get.to(
+                                                () => HealthyMealChart(
+                                                  foodcategory: foodcategory,
+                                                  fooday: fooddays,
+                                                ),
+                                                // transition: Transition
+                                                //     .rightToLeft,
+                                                // duration: const Duration(
+                                                //     milliseconds: 500),
+                                              );
+                                              setState(() {
+                                                isloading = false;
+                                                _disableButtons = false;
+                                              });
+                                            }
+                                          },
+                                    style: ButtonStyle(
+                                      elevation: MaterialStateProperty
+                                          .resolveWith<double>(
+                                        (Set<MaterialState> states) {
+                                          return states.contains(
+                                                  MaterialState.disabled)
+                                              ? 0.0
+                                              : 10.0;
+                                        },
+                                      ),
+                                      foregroundColor: MaterialStateProperty
+                                          .resolveWith<Color>(
+                                        (Set<MaterialState> states) {
+                                          return states.contains(
+                                                  MaterialState.disabled)
+                                              ? const Color(0xffa96414)
+                                              : const Color(0xffF3933F);
+                                        },
+                                      ),
+                                      backgroundColor: MaterialStateProperty
+                                          .resolveWith<Color>(
+                                        (Set<MaterialState> states) {
+                                          return states.contains(
+                                                  MaterialState.disabled)
+                                              ? const Color(0xffa96414)
+                                              : const Color(0xffF3933F);
+                                        },
+                                      ),
+                                      /*backgroundColor: isloading
                                         ? const Color(0xffa96414)
                                         : Color(0xffF3933F),*/
 
-                                minimumSize:
-                                MaterialStateProperty.all<Size>(
-                                    const Size(250, 45)),
-                              ),
-                              child: isloading
-                                  ? LoadingAnimationWidget
-                                  .staggeredDotsWave(
-                                color: Colors.white,
-                                size: 30,
-                              )
-                                  : const Text(
-                                "HEALTHY MEAL CHART",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  letterSpacing: 2,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            )
+                                      minimumSize:
+                                          MaterialStateProperty.all<Size>(
+                                              const Size(250, 45)),
+                                    ),
+                                    child: isloading
+                                        ? LoadingAnimationWidget
+                                            .staggeredDotsWave(
+                                            color: Colors.white,
+                                            size: 30,
+                                          )
+                                        : const Text(
+                                            "HEALTHY MEAL CHART",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              letterSpacing: 2,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                  )
                                 : const SizedBox();
                           } else {
-                            WidgetsBinding.instance
-                                .addPostFrameCallback((_) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
                               if (mounted && !_isDialogShownsetting) {
                                 _showTimeoutDialog();
                               }
@@ -1434,29 +1428,28 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
                                   style: ElevatedButton.styleFrom(
                                     // shape: StadiumBorder(),
                                     elevation: 0.0,
-                                    backgroundColor:
-                                    const Color(0xffF3933F),
+                                    backgroundColor: const Color(0xffF3933F),
                                     minimumSize: const Size(250, 45),
                                   ),
                                   child: isloading
                                       ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 5,
-                                      valueColor:
-                                      AlwaysStoppedAnimation<
-                                          Color>(Colors.white),
-                                    ),
-                                  )
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 5,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.white),
+                                          ),
+                                        )
                                       : const Text(
-                                    "HEALTHY MEAL CHART",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      letterSpacing: 2,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                          "HEALTHY MEAL CHART",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            letterSpacing: 2,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                 ),
                               ),
                             );
@@ -1480,23 +1473,23 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
                                 ),
                                 child: isloading
                                     ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 5,
-                                    valueColor:
-                                    AlwaysStoppedAnimation<Color>(
-                                        Colors.white),
-                                  ),
-                                )
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 5,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.white),
+                                        ),
+                                      )
                                     : const Text(
-                                  "HEALTHY MEAL CHART",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    letterSpacing: 2,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                        "HEALTHY MEAL CHART",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          letterSpacing: 2,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
                             ),
                           );
@@ -1513,28 +1506,30 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
                                 // shape: StadiumBorder(),
                                 elevation: 0.0,
                                 backgroundColor: const Color(0xffF3933F),
-                                minimumSize:  Size(  MediaQuery.of(context).size.width * 0.22,
-                                  MediaQuery.of(context).size.height * 0.09,),
+                                minimumSize: Size(
+                                  MediaQuery.of(context).size.width * 0.22,
+                                  MediaQuery.of(context).size.height * 0.09,
+                                ),
                               ),
                               child: isloading
                                   ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 5,
-                                  valueColor:
-                                  AlwaysStoppedAnimation<Color>(
-                                      Colors.white),
-                                ),
-                              )
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 5,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.white),
+                                      ),
+                                    )
                                   : const Text(
-                                "HEALTHY MEAL CHART",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  letterSpacing: 2,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                                      "HEALTHY MEAL CHART",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        letterSpacing: 2,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                             ),
                           ),
                         );
@@ -1544,10 +1539,8 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
                 ),
               ),
             )
-
           ],
         ),
-
         Positioned(
           top: MediaQuery.of(context).size.height * 0.05,
           left: 0,
@@ -1560,13 +1553,11 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
             ),
             onPressed: () {
               FocusScope.of(context).unfocus();
-              AudioPlayer()
-                  .play(AssetSource("audio/Bubble 02.mp3"));
+              AudioPlayer().play(AssetSource("audio/Bubble 02.mp3"));
               ExitConfirmation.showLogoutDialog(context);
             },
           ),
         ),
-
         Positioned(
           top: MediaQuery.of(context).size.height * 0.05,
           left: 0,
@@ -1581,10 +1572,9 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
             ),
           )
               .animate(
-            onPlay: (controller) => controller.loop(reverse: true),
-          )
-              .slideX(
-              begin: 0, end: 0.2, duration: 1000.ms, delay: 500.ms),
+                onPlay: (controller) => controller.loop(reverse: true),
+              )
+              .slideX(begin: 0, end: 0.2, duration: 1000.ms, delay: 500.ms),
         ),
         Positioned(
           top: MediaQuery.of(context).size.height * 0.01,
@@ -1600,10 +1590,9 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
             ),
           )
               .animate(
-            onPlay: (controller) => controller.loop(reverse: true),
-          )
-              .slideX(
-              begin: 0, end: 0.3, duration: 2000.ms, delay: 100.ms),
+                onPlay: (controller) => controller.loop(reverse: true),
+              )
+              .slideX(begin: 0, end: 0.3, duration: 2000.ms, delay: 100.ms),
         ),
         Positioned(
           top: MediaQuery.of(context).size.height * 0.09,
@@ -1619,10 +1608,9 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
             ),
           )
               .animate(
-            onPlay: (controller) => controller.loop(reverse: true),
-          )
-              .slideX(
-              begin: 0, end: 0.3, duration: 2000.ms, delay: 100.ms),
+                onPlay: (controller) => controller.loop(reverse: true),
+              )
+              .slideX(begin: 0, end: 0.3, duration: 2000.ms, delay: 100.ms),
         ),
         Positioned(
           top: MediaQuery.of(context).size.height * 0.08,
@@ -1638,8 +1626,8 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
             ),
           )
               .animate(
-            onPlay: (controller) => controller.loop(reverse: true),
-          )
+                onPlay: (controller) => controller.loop(reverse: true),
+              )
               .scaleXY(begin: 0.8, end: 1, duration: 1000.ms),
         ),
         Positioned(
@@ -1650,15 +1638,14 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
             width: 50,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    'assets/images/sapience/HS-Butterfly1.png'),
+                image: AssetImage('assets/images/sapience/HS-Butterfly1.png'),
                 fit: BoxFit.cover,
               ),
             ),
           )
               .animate(
-            onPlay: (controller) => controller.loop(reverse: true),
-          )
+                onPlay: (controller) => controller.loop(reverse: true),
+              )
               .scaleX(begin: 0.7, end: 1, duration: 400.ms),
         ),
         Positioned(
@@ -1669,15 +1656,14 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
             width: 60,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    'assets/images/sapience/HS-Butterfly2.png'),
+                image: AssetImage('assets/images/sapience/HS-Butterfly2.png'),
                 fit: BoxFit.cover,
               ),
             ),
           )
               .animate(
-            onPlay: (controller) => controller.loop(reverse: true),
-          )
+                onPlay: (controller) => controller.loop(reverse: true),
+              )
               .scaleX(begin: 0.7, end: 1, duration: 200.ms),
         ),
         Positioned(
@@ -1694,8 +1680,8 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
             ),
           )
               .animate(
-            onPlay: (controller) => controller.loop(reverse: true),
-          )
+                onPlay: (controller) => controller.loop(reverse: true),
+              )
               .then(delay: 100.ms)
               .shake(hz: 10, duration: 2000.ms)
               .slideX(begin: 0, end: 0.5, duration: 2000.ms)
@@ -1705,7 +1691,6 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
         Positioned(
             top: MediaQuery.of(context).size.height * 0.56,
             left: MediaQuery.of(context).size.width * 0.45,
-
             child: Container(
               height: 50,
               width: 50,
@@ -1717,8 +1702,8 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
               ),
             )
                 .animate(
-              onPlay: (controller) => controller.loop(reverse: true),
-            )
+                  onPlay: (controller) => controller.loop(reverse: true),
+                )
                 .shake(hz: 10, duration: 1000.ms)
                 .slideX(begin: 0, end: 1, duration: 1000.ms)),
       ],
@@ -1765,7 +1750,6 @@ class _ParentWelcomeScreenState extends ConsumerState<ParentWelcomeScreen> {
           setState(() {
             _loadingIndex = null;
             _disableButtons = false;
-
           });
         } else {
           Get.to(

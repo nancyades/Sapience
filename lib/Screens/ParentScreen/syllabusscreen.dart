@@ -736,8 +736,8 @@ class _SyllabusState extends ConsumerState<Syllabus>
                   },
                 ),
               ),
-              const SizedBox(height: 10),
-              ref.watch(addtermsNotifier).id.when(
+             // const SizedBox(height: 10),
+           /*   ref.watch(addtermsNotifier).id.when(
                 data: (snapshot) {
                   return Flexible(
                     child: Container(
@@ -834,7 +834,9 @@ class _SyllabusState extends ConsumerState<Syllabus>
                     ),
                   );
                 },
-              ),
+              ),*/
+
+
               WeeksList(
                 section: widget.section.toString(),
                 sectionid: widget.sectionid.toString(),
