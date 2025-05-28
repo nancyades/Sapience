@@ -303,7 +303,49 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
       color: Colors.white,
       borderRadius: BorderRadius.circular(25),
     ),
+
     child: snapshot['data'].length == 0
+        ? Container()
+        : DefaultTabController(
+      length: snapshot['data'].length,
+      child: TabBar(
+        controller: _tabController,
+        isScrollable: true, // keep scrollable to allow more tabs
+        tabAlignment: TabAlignment.start,
+        tabs: List.generate(snapshot['data'].length, (index) {
+          double tabWidth = 304 / snapshot['data'].length;
+          return SizedBox(
+            width: tabWidth,
+            child: Tab(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  snapshot['data'][index]['name'],
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width <= 360 ? 11 : 14,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+        indicator: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          color: const Color(0xffb673d0),
+        ),
+        dividerColor: Colors.transparent,
+        labelColor: Colors.white,
+        unselectedLabelColor: const Color(0xffb673d0),
+        labelStyle: const TextStyle(fontSize: AppTheme.smallFontSize),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+        indicatorSize: TabBarIndicatorSize.tab,
+      ),
+    ),
+
+
+
+    /*  child: snapshot['data'].length == 0
         ? Container()
         : DefaultTabController(
       length: snapshot['data'].length,
@@ -341,7 +383,7 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
         unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
         indicatorSize: TabBarIndicatorSize.tab,
       ),
-    ),
+    ),*/
   );
 }
  else {

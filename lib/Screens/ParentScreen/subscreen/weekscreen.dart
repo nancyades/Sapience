@@ -536,7 +536,7 @@ class _WeeksListState extends ConsumerState<WeeksList> {
 
 
 
-              await ref.refresh(addmonthNotifier);
+              //await ref.refresh(addmonthNotifier);
               await ref.read(addmonthNotifier.notifier).addmonth(
                   widget.sectionid.toString(), termid);
               setState(() {
@@ -755,10 +755,7 @@ class _WeeksListState extends ConsumerState<WeeksList> {
           //ref.watch(addweekNotifier).id.when(data: (snapshot) {
 
         ref.watch(addmonthNotifier).id.when(data: (snapshot) {
-          print("index----> ${index}");
-          print("section----> ${section}");
-          print("sectionid----> ${sectionid}");
-          print("termid----> ${termid}");
+
 
             try {
               if (snapshot != null) {
@@ -792,7 +789,7 @@ class _WeeksListState extends ConsumerState<WeeksList> {
                               if (currentIndex == index) {
                               } else {
                                  ref.watch(addweekNotifier).id.when(data: (weekdata){
-                                   if(snapshot['data'][3]["name"] == "Full Syllabus"){
+                                   if(snapshot['data'][index]["name"] == "Full Syllabus"){
                                      weekid = weekdata["data"][0]['id'].toString();
                                    }else{
                                      weekid = weekdata["data"][3]['id'].toString();

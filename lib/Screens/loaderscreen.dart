@@ -6,6 +6,7 @@ import 'package:sapience/Screens/ParentScreen/healthymeal_videoplayer.dart';
 import 'package:sapience/Screens/ParentScreen/landscapevideoplayerscreen.dart';
 import 'package:sapience/Screens/ParentScreen/syllabusvideos.dart';
 
+import 'ParentScreen/subscreen/weekscreen.dart';
 import 'ParentScreen/videoplayerscreen.dart';
 
 class loaderScreen extends StatefulWidget {
@@ -33,6 +34,9 @@ class _loaderScreenState extends State<loaderScreen> {
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+      selected = -1;
+
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Get.off(
