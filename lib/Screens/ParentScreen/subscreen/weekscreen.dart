@@ -19,16 +19,23 @@ import 'package:sapience/constant/snackbar_util.dart';
 import 'package:sapience/helper/appconstant.dart';
 
 int? selected;
+Map<String, int> selectedWeekIndexes = {};
+String? monthid;
+String? weekid;
+
 class WeeksList extends ConsumerStatefulWidget {
   String? sectionid;
   String? termid;
   String? section;
+
+
 
   WeeksList({
     super.key,
     this.sectionid,
     this.termid,
     this.section,
+
   });
 
   @override
@@ -36,9 +43,8 @@ class WeeksList extends ConsumerStatefulWidget {
 }
 
 class _WeeksListState extends ConsumerState<WeeksList> {
-  Map<String, int> selectedWeekIndexes = {};
-  String weekid = "";
-  String monthid = "";
+  //String weekid = "";
+  //String monthid = "";
   int isSelectedIndex = -1;
   String subjectid = "";
   String subjectName = "";
@@ -532,10 +538,6 @@ class _WeeksListState extends ConsumerState<WeeksList> {
           ),
           onExpansionChanged: ((newState) async{
             if (newState) {
-
-
-
-
               //await ref.refresh(addmonthNotifier);
               await ref.read(addmonthNotifier.notifier).addmonth(
                   widget.sectionid.toString(), termid);
@@ -554,8 +556,6 @@ class _WeeksListState extends ConsumerState<WeeksList> {
                 }*/
 
               });
-
-
 
             } else {
               setState(() {
@@ -786,6 +786,8 @@ class _WeeksListState extends ConsumerState<WeeksList> {
                               monthid = snapshot['data'][index]['id'].toString();
                               int currentIndex =
                                   selectedWeekIndexes[termid] ?? -1;
+                              print("first selectedWeekIndexes[termid] ${selectedWeekIndexes[termid]}");
+                              print("first [termid] ${[termid]}");
                               if (currentIndex == index) {
                               } else {
                                  ref.watch(addweekNotifier).id.when(data: (weekdata){
@@ -804,8 +806,11 @@ class _WeeksListState extends ConsumerState<WeeksList> {
                                // weekid = snapshot['data'][index]['id'].toString();
                                 // want to change the content
                                 ref.refresh(addsubjectsNotifier);
-                                ref.read(addsubjectsNotifier.notifier).addsubjects(sectionid, termid, monthid, weekid);
+                                ref.read(addsubjectsNotifier.notifier).addsubjects(sectionid, termid, monthid!, weekid!);
                                 selectedWeekIndexes[termid] = index;
+
+                                 print("second selectedWeekIndexes[termid] ${selectedWeekIndexes[termid]}");
+                                 print("second [termid] ${[termid]}");
                               }
                             });
                           },
@@ -1085,16 +1090,30 @@ class _WeeksListState extends ConsumerState<WeeksList> {
                                                 [index]['name']
                                             .toString();
 
+                                        print("Nanncy-->${selectedWeekIndexes[termid]}");
+
+                                        print("section-->${section}");
+                                        print("context-->${context}");
+                                        print("index-->${index}");
+                                        print("sectionid-->${sectionid}");
+                                        print("termid-->${termid}");
+                                        print("monthid-->${monthid}");
+                                        print("weekid-->${weekid}");
+                                        print("subjectid-->${subjectid}");
+                                        print("subjectName-->${subjectName}");
+
+
                                         handleAPIsAndNavigate(
                                           section,
                                           context,
                                           index,
                                           sectionid,
                                           termid,
-                                          monthid,
-                                          weekid,
+                                          monthid!,
+                                          weekid!,
                                           subjectid,
                                           subjectName,
+
                                         );
                                       } catch (e) {
                                       } finally {
@@ -1303,6 +1322,7 @@ class _WeeksListState extends ConsumerState<WeeksList> {
   }
 
   void handleAPIsAndNavigate(
+
     String section,
     BuildContext context,
     int index,
@@ -1312,6 +1332,8 @@ class _WeeksListState extends ConsumerState<WeeksList> {
     String weekid,
     String subjectid,
     String subjectName,
+
+
   ) async {
     try {
       await Future.delayed(const Duration(milliseconds: 500));
@@ -1357,6 +1379,9 @@ class _WeeksListState extends ConsumerState<WeeksList> {
                     subcatlen: videocategorydata['data'].length,
                     subcatid: videocategorydata['data'].isEmpty ? "0" : videocategorydata['data'][0]['id'].toString(),
                     subjectName: subjectName,
+                monthid: monthid,
+                weekid: weekid,
+
                   ),
               // transition: Transition.rightToLeft,
               // duration: const Duration(milliseconds: 500)

@@ -6,6 +6,7 @@ import 'package:sapience/Screens/ParentScreen/healthymeal_videoplayer.dart';
 import 'package:sapience/Screens/ParentScreen/landscapevideoplayerscreen.dart';
 import 'package:sapience/Screens/ParentScreen/syllabusvideos.dart';
 
+import '../helper/appconstant.dart';
 import 'ParentScreen/subscreen/weekscreen.dart';
 import 'ParentScreen/videoplayerscreen.dart';
 
@@ -16,6 +17,10 @@ class loaderScreen extends StatefulWidget {
   String? subjectName;
   int? titleid;
   String? subcatid;
+  String? monthid;
+  String? weekid;
+
+
   loaderScreen(
       {super.key,
       this.subcatlen,
@@ -23,7 +28,9 @@ class loaderScreen extends StatefulWidget {
       this.sectionid,
       this.subjectName,
       this.titleid,
-        this.subcatid
+        this.subcatid,
+        this.monthid,
+        this.weekid
       });
 
   @override
@@ -35,7 +42,8 @@ class _loaderScreenState extends State<loaderScreen> {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-      selected = -1;
+      //selected = -1;
+   //selectedWeekIndexes[AppConstants.termid] =int.parse(AppConstants.termid) ;
 
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -47,6 +55,9 @@ class _loaderScreenState extends State<loaderScreen> {
           sectionid: widget.sectionid,
           subcatlen: widget.subcatlen,
           subjectName: widget.subjectName,
+          monthid: widget.monthid,
+          weekid: widget.weekid,
+
         ),
         //transition: Transition.rightToLeft,
         // duration: const Duration(milliseconds: 500),
@@ -99,6 +110,7 @@ class _loadertvScreenState extends State<loadertvScreen> {
           sectionid: widget.sectionid,
           subcatlen: widget.subcatlen,
           subjectName: widget.subjectName,
+
         ),
         //transition: Transition.rightToLeft,
         // duration: const Duration(milliseconds: 500),
@@ -126,6 +138,7 @@ class Landscapeloader extends StatefulWidget {
   String? section;
   String? sectionid;
   String? subjectname;
+  int selectedWeekIndexes;
   Landscapeloader(
       {super.key,
       required this.filepath,
@@ -133,7 +146,9 @@ class Landscapeloader extends StatefulWidget {
       this.subcatlen,
       this.section,
       this.sectionid,
-      this.subjectname});
+      this.subjectname,
+        required this.selectedWeekIndexes
+      });
 
   @override
   State<Landscapeloader> createState() => _LandscapeloaderState();
@@ -154,6 +169,7 @@ class _LandscapeloaderState extends State<Landscapeloader> {
           filePath: widget.filepath,
           image: widget.image,
           subjectName: widget.subjectname,
+
         ),
         // transition: Transition.fadeIn,
         // duration: const Duration(milliseconds: 500),

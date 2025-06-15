@@ -41,6 +41,10 @@ class Syllabusvideo extends ConsumerStatefulWidget {
   int titleid;
   final int? subcatlen;
   String subcatid;
+  final String? monthid;
+  final String? weekid;
+
+
 
   Syllabusvideo({
     super.key,
@@ -50,6 +54,9 @@ class Syllabusvideo extends ConsumerStatefulWidget {
     this.subjectName,
     required this.titleid,
     required this.subcatid,
+    this.monthid,
+    this.weekid
+
   });
 
   @override
@@ -182,6 +189,7 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
 
   Future<void> _updateConnectionStatus(ConnectivityResult result) async {
     final isOnline = result != ConnectivityResult.none;
+
     setState(() {
       _isOnline = isOnline;
     });
@@ -269,8 +277,13 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
                           width: AppTheme.largeFontSize,
                         ),
                         onPressed: () {
+                          setState(() {
+                            monthid = widget.monthid;
+                            weekid = widget.weekid;
+                          });
                           FocusScope.of(context).unfocus();
                           AudioPlayer().play(AssetSource("audio/Bubble 02.mp3"));
+
                           Get.back();
                         },
                       ),
@@ -294,98 +307,218 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
                if (snapshot != null) {
   return
     //widget.subjectName == "Tamil" ? SizedBox() :
-  Container(
-    margin: const EdgeInsets.only(left: 10, right: 10),
-    padding: const EdgeInsets.all(2),
-    width: 340,
-    height: 42,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(25),
-    ),
+//scrolling
+    /*Container(
+      margin: const EdgeInsets.only(left: 10, right: 10),
+      padding: const EdgeInsets.all(2),
+      width: 340,
+      height: 42,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: snapshot['data'].length == 0
+          ? Container()
+          : DefaultTabController(
+        length: snapshot['data'].length,
+        child: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          tabs: List.generate(snapshot['data'].length, (index) {
+             double tabWidth = 304 / snapshot['data'].length;
 
-    child: snapshot['data'].length == 0
-        ? Container()
-        : DefaultTabController(
-      length: snapshot['data'].length,
-      child: TabBar(
-        controller: _tabController,
-        isScrollable: true, // keep scrollable to allow more tabs
-        tabAlignment: TabAlignment.start,
-        tabs: List.generate(snapshot['data'].length, (index) {
-          double tabWidth = 304 / snapshot['data'].length;
-          return SizedBox(
-            width: tabWidth,
-            child: Tab(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
+            return snapshot['data'].length  <= 2   ?  SizedBox(
+              width: tabWidth,
+              child: Tab(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    snapshot['data'][index]['name'],
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width <= 350 ? 11 : 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            )
+            : Tab(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Text(
                   snapshot['data'][index]['name'],
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width <= 360 ? 11 : 14,
+                    fontSize: MediaQuery.of(context).size.width <= 350 ? 11 : 16,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
-            ),
-          );
-        }),
-        indicator: BoxDecoration(
-          borderRadius: BorderRadius.circular(25),
-          color: const Color(0xffb673d0),
+            );
+          }),
+          indicator: BoxDecoration(
+            borderRadius: BorderRadius.circular(25),
+            color: const Color(0xffb673d0),
+          ),
+          dividerColor: Colors.transparent,
+          labelColor: Colors.white,
+          unselectedLabelColor: const Color(0xffb673d0),
+          labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+          indicatorSize: TabBarIndicatorSize.tab,
         ),
-        dividerColor: Colors.transparent,
-        labelColor: Colors.white,
-        unselectedLabelColor: const Color(0xffb673d0),
-        labelStyle: const TextStyle(fontSize: AppTheme.smallFontSize),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
-        indicatorSize: TabBarIndicatorSize.tab,
       ),
-    ),
+    );*/
+//without scrolling
+ /*  Container(
+                     margin: const EdgeInsets.only(left: 10, right: 10),
+                     padding: const EdgeInsets.all(2),
+                     width: 350,
+                     height: 42,
+                     decoration: BoxDecoration(
+                       color: Colors.white,
+                       borderRadius: BorderRadius.circular(25),
+                     ),
+                     child: snapshot['data'].length == 0
+                         ? Container()
+                         : DefaultTabController(
+                       length: snapshot['data'].length,
+                       child: TabBar(
+                         controller: _tabController,
+                         tabs: List<Widget>.generate(snapshot['data'].length, (index) {
+                           return Tab(
+                             child: Padding(
+                               padding: const EdgeInsets.all(0),
+                               child: FittedBox(
+                                 fit: BoxFit.scaleDown,
+                                 child: Text(
+                                   snapshot['data'][index]['name'],
+                                   textAlign: TextAlign.center,
+                                   style: TextStyle(
+                                     fontSize: MediaQuery.of(context).size.width <= 360 ? 11 : 15,
+                                   ),
+                                 ),
+                               ),
+                             ),
+                           );
+                         }),
+                         indicator: BoxDecoration(
+                           borderRadius: BorderRadius.circular(25),
+                           color: const Color(0xffb673d0),
+                         ),
+                         dividerColor: Colors.transparent,
+                         labelColor: Colors.white,
+                         unselectedLabelColor: const Color(0xffb673d0),
+                         labelStyle: const TextStyle(fontSize: AppTheme.smallFontSize),
+                         unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+                         indicatorSize: TabBarIndicatorSize.tab,
+                       ),
+                     ),
+                   );*/
+
+                   Container(
+                     margin: const EdgeInsets.symmetric(horizontal: 10),
+                     padding: const EdgeInsets.all(2),
+                     width: 350,
+                     height: 42,
+                     decoration: BoxDecoration(
+                       color: Colors.white,
+                       borderRadius: BorderRadius.circular(25),
+                     ),
+                     child: snapshot['data'].isEmpty
+                         ? Container()
+                         : snapshot['data'].length > 3
+                     // Show DropdownButton when data length >= 3
+                         ? Theme(
+                       data: Theme.of(context).copyWith(
+                         canvasColor: Colors.white, // dropdown background
+                         highlightColor: Colors.transparent,
+                         splashColor: Colors.transparent,
+                       ),
+                       child: DropdownButtonHideUnderline(
+                         child: Container(
+                           decoration: BoxDecoration(
+                             //color: const Color(0xffb673d0), // purple background on tap
+                             borderRadius: BorderRadius.circular(25),
+                           ),
+                           padding: const EdgeInsets.symmetric(horizontal: 12),
+                           child: DropdownButton<String>(
+                             isExpanded: true,
+                             dropdownColor: Colors.white, // Dropdown menu background
+                             value: snapshot['data'][_tabController?.index]['name'],
+                             iconEnabledColor: Colors.black, // dropdown arrow color
+                             style: const TextStyle(color: Colors.white), // selected text color
+                             onChanged: (String? newValue) {
+                               final index = snapshot['data']
+                                   .indexWhere((item) => item['name'] == newValue);
+                               if (index != -1) {
+                                 _tabController?.animateTo(index);
+                               }
+                             },
+                             items: snapshot['data'].map<DropdownMenuItem<String>>((item) {
+                               return DropdownMenuItem<String>(
+                                 value: item['name'],
+                                 child: Container(
+                                   decoration: BoxDecoration(
+                                     borderRadius: BorderRadius.circular(15),
+                                     color: Colors.white,
+                                   ),
+                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                   child: Text(
+                                     item['name'],
+                                     style: const TextStyle(color: Color(0xffb673d0)),
+                                   ),
+                                 ),
+                               );
+                             }).toList(),
+                           ),
+                         ),
+                       ),
+                     )
+
+                     // Show TabBar when data length < 3
+                         : DefaultTabController(
+                       length: snapshot['data'].length,
+                       child: TabBar(
+                         controller: _tabController,
+                         tabs: List<Widget>.generate(snapshot['data'].length, (index) {
+                           return Tab(
+                             child: Padding(
+                               padding: const EdgeInsets.all(0),
+                               child: FittedBox(
+                                 fit: BoxFit.scaleDown,
+                                 child: Text(
+                                   snapshot['data'][index]['name'],
+                                   textAlign: TextAlign.center,
+                                   style: TextStyle(
+                                     fontSize: MediaQuery.of(context).size.width <= 360 ? 11 : 16,
+                                   ),
+                                 ),
+                               ),
+                             ),
+                           );
+                         }),
+                         indicator: BoxDecoration(
+                           borderRadius: BorderRadius.circular(25),
+                           color: const Color(0xffb673d0),
+                         ),
+                         dividerColor: Colors.transparent,
+                         labelColor: Colors.white,
+                         unselectedLabelColor: const Color(0xffb673d0),
+                         labelStyle: const TextStyle(fontSize: AppTheme.smallFontSize),
+                         unselectedLabelStyle:
+                         const TextStyle(fontWeight: FontWeight.normal),
+                         indicatorSize: TabBarIndicatorSize.tab,
+                       ),
+                     ),
+                   );
 
 
 
-    /*  child: snapshot['data'].length == 0
-        ? Container()
-        : DefaultTabController(
-      length: snapshot['data'].length,
-      child: TabBar(
-        isScrollable: true,
-        tabAlignment: TabAlignment.start,
-        //labelPadding: EdgeInsets.zero,
-        controller: _tabController,
-        tabs: List<Widget>.generate(snapshot['data'].length, (index) {
-          return Tab(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  snapshot['data'][index]['name'],
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width <= 360 ? 11 : 12,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
-        indicator: BoxDecoration(
 
-          borderRadius: BorderRadius.circular(25),
-          color: const Color(0xffb673d0),
-        ),
-        dividerColor: Colors.transparent,
-        labelColor: Colors.white,
-        unselectedLabelColor: const Color(0xffb673d0),
-        labelStyle: const TextStyle(fontSize: AppTheme.smallFontSize),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
-        indicatorSize: TabBarIndicatorSize.tab,
-      ),
-    ),*/
-  );
-}
+               }
  else {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (mounted && !_isDialogtitle) _showTimeoutDialog();
@@ -584,7 +717,9 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
                               context,
                               videos,
                               widget.subjectName.toString(),
-                              downloadManager);
+                              downloadManager
+
+                          );
                         }
 
                         else {
@@ -1368,7 +1503,7 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
   }
 
   Widget buildVideoItem(String section, String sectionid, BuildContext context,
-      List<dynamic> videos, String subjectName, DownloadManager downloadManager) {
+      List<dynamic> videos, String subjectName, DownloadManager downloadManager,) {
     return ListView.builder(
       controller: ScrollController(),
       physics: const ScrollPhysics(),
@@ -1401,6 +1536,9 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
                         filePath: filePath.toString(),
                         image: fileimage.toString(),
                         subjectName: widget.subjectName,
+                        monthid: widget.monthid,
+                        weekid: widget.weekid
+
                       ),
                       duration: const Duration(milliseconds: 500),
                     );
@@ -1432,6 +1570,9 @@ class _SyllabusvideoState extends ConsumerState<Syllabusvideo>
                           filePath: video['video_url'].toString(),
                           image: video['image_url'].toString(),
                           subjectName: widget.subjectName,
+                                monthid: widget.monthid,
+                                weekid: widget.weekid
+
                         ),
                         duration: const Duration(milliseconds: 500),
                       );

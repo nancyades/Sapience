@@ -34,6 +34,7 @@ class Syllabus extends ConsumerStatefulWidget {
   final String? sectionid;
   final String? termid;
 
+
   Syllabus({super.key, this.section, this.sectionid, this.termid});
 
   @override

@@ -34,6 +34,10 @@ class VideoViewer extends ConsumerStatefulWidget {
   String? subjectName;
   int? titleid;
   String? subcatid;
+  String? monthid;
+  String? weekid;
+
+
 
   VideoViewer({
     super.key,
@@ -45,6 +49,8 @@ class VideoViewer extends ConsumerStatefulWidget {
     this.sectionid,
     this.titleid,
     this.subcatid,
+    this.monthid,
+    this.weekid
   });
 
   @override
@@ -144,17 +150,7 @@ class _VideoViewerState extends ConsumerState<VideoViewer>
     }
   }
 
-  void _checkBufferingState() {
-    if (_controller!.value.isBuffering) {
-      setState(() {
-        _isBuffering = true;
-      });
-    } else {
-      setState(() {
-        _isBuffering = false;
-      });
-    }
-  }
+
 
   void _toggleControls() {
     setState(() {
@@ -180,6 +176,19 @@ class _VideoViewerState extends ConsumerState<VideoViewer>
     _chewieController?.dispose();
     AudioService().playMusic();
   }
+  void _checkBufferingState() {
+    if (_controller!.value.isBuffering) {
+      setState(() {
+        _isBuffering = true;
+      });
+    } else {
+      setState(() {
+        _isBuffering = false;
+      });
+    }
+  }
+
+
 
   Future setLandscape() async {
     await SystemChrome.setPreferredOrientations([
@@ -189,20 +198,59 @@ class _VideoViewerState extends ConsumerState<VideoViewer>
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
-  void _forward() {
+ /* void _forward() {
     final currentPosition = _controller!.value.position;
     final duration = _controller!.value.duration;
     final forwardPosition = currentPosition + const Duration(seconds: 10);
     _controller!
         .seekTo(forwardPosition < duration ? forwardPosition : duration);
-  }
+  }*/
 
+
+/*
   void _rewind() {
     final currentPosition = _controller!.value.position;
     final rewindPosition = currentPosition - const Duration(seconds: 10);
     _controller!.seekTo(
         rewindPosition > Duration.zero ? rewindPosition : Duration.zero);
+  }*/
+
+  void _forward() {
+    final currentPosition = _controller!.value.position;
+    final duration = _controller!.value.duration;
+    final forwardPosition = currentPosition + const Duration(seconds: 10);
+
+    // Skip false buffering display
+    _controller!.seekTo(forwardPosition < duration ? forwardPosition : duration);
+
+    // Suppress buffering indicator for 1 second
+    setState(() {
+      _isBuffering = false;
+    });
+
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) _checkBufferingState();
+    });
   }
+
+  void _rewind() {
+    final currentPosition = _controller!.value.position;
+    final rewindPosition = currentPosition - const Duration(seconds: 10);
+
+    _controller!.seekTo(
+      rewindPosition > Duration.zero ? rewindPosition : Duration.zero,
+    );
+
+    setState(() {
+      _isBuffering = false;
+    });
+
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) _checkBufferingState();
+    });
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -217,6 +265,9 @@ class _VideoViewerState extends ConsumerState<VideoViewer>
             sectionid: widget.sectionid,
             subcatlen: widget.subcatlen,
             subjectName: widget.subjectName,
+            monthid: widget.monthid,
+            weekid: widget.weekid
+
           ),
           // transition: Transition.rightToLeft,
           // duration: const Duration(milliseconds: 500),
@@ -257,11 +308,12 @@ class _VideoViewerState extends ConsumerState<VideoViewer>
                             margin: const EdgeInsets.only(bottom: 20),
                             height: 60,
                             width: 60,
-                            child: CircularProgressIndicator(
+                            /*child: CircularProgressIndicator(
                               color: Colors.grey[600],
-                            ),
+                            ),*/
                           ),
                         ),
+
                       Positioned(
                         top: 20,
                         left: 0,
@@ -285,6 +337,12 @@ class _VideoViewerState extends ConsumerState<VideoViewer>
                                 sectionid: widget.sectionid,
                                 subcatlen: widget.subcatlen,
                                 subjectName: widget.subjectName,
+                                  monthid: widget.monthid,
+                                  weekid: widget.weekid
+
+
+
+
                               ),
                               // transition: Transition.rightToLeft,
                               // duration: const Duration(milliseconds: 500),
@@ -347,6 +405,7 @@ class _VideoViewerState extends ConsumerState<VideoViewer>
                   ],
                 ),
               ),
+
             Consumer(
               builder: (context, ref, child) {
                 final videoState = ref.watch(addvideoNotifier);
@@ -440,7 +499,7 @@ class _VideoViewerState extends ConsumerState<VideoViewer>
                                       padding: const EdgeInsets.only(
                                           bottom: 15, left: 10, right: 2),
                                       width:
-                                          MediaQuery.of(context).size.width / 3,
+                                      MediaQuery.of(context).size.width / 3,
                                       margin: const EdgeInsets.only(
                                           bottom: 0, left: 5, right: 2),
                                       decoration: BoxDecoration(
@@ -453,28 +512,28 @@ class _VideoViewerState extends ConsumerState<VideoViewer>
                                         fit: BoxFit.fill,
                                         imageBuilder:
                                             (context, imageProvider) =>
-                                                Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
                                                 BorderRadius.circular(20),
-                                            image: DecorationImage(
-                                              image: imageProvider,
-                                              fit: BoxFit.fill,
+                                                image: DecorationImage(
+                                                  image: imageProvider,
+                                                  fit: BoxFit.fill,
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
                                         placeholder: (context, url) =>
                                             ShimmerSkeleton(
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
                                                   BorderRadius.circular(20),
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
                                         errorWidget: (context, url, error) =>
-                                            const Icon(Icons.error),
+                                        const Icon(Icons.error),
                                       ),
                                     ),
                                   );
@@ -539,9 +598,9 @@ class _VideoViewerState extends ConsumerState<VideoViewer>
                                   onTap: () {
                                     _controller =
                                         VideoPlayerController.networkUrl(
-                                      Uri.parse(
-                                          "https://cdn.pixabay.com/video/2023/07/31/174003-850361299_large.mp4"),
-                                    );
+                                          Uri.parse(
+                                              "https://cdn.pixabay.com/video/2023/07/31/174003-850361299_large.mp4"),
+                                        );
 
                                     _controller!.addListener(() {
                                       setState(() {});
@@ -559,7 +618,7 @@ class _VideoViewerState extends ConsumerState<VideoViewer>
                                     padding: const EdgeInsets.only(
                                         bottom: 15, left: 10, right: 10),
                                     width:
-                                        MediaQuery.of(context).size.width / 3,
+                                    MediaQuery.of(context).size.width / 3,
                                     margin: const EdgeInsets.only(
                                         bottom: 20, left: 8, right: 8),
                                     decoration: BoxDecoration(

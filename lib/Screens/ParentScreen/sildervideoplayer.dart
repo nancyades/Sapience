@@ -159,7 +159,7 @@ class _SliderPlayerState extends State<SliderPlayer>
     }
   }
 
-  void _forward() {
+/*  void _forward() {
     final currentPosition = _controller!.value.position;
     final duration = _controller!.value.duration;
     final forwardPosition = currentPosition + const Duration(seconds: 10);
@@ -172,6 +172,41 @@ class _SliderPlayerState extends State<SliderPlayer>
     final rewindPosition = currentPosition - const Duration(seconds: 10);
     _controller!.seekTo(
         rewindPosition > Duration.zero ? rewindPosition : Duration.zero);
+  }*/
+
+  void _forward() {
+    final currentPosition = _controller!.value.position;
+    final duration = _controller!.value.duration;
+    final forwardPosition = currentPosition + const Duration(seconds: 10);
+
+    // Skip false buffering display
+    _controller!.seekTo(forwardPosition < duration ? forwardPosition : duration);
+
+    // Suppress buffering indicator for 1 second
+    setState(() {
+      _isBuffering = false;
+    });
+
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) _checkBufferingState();
+    });
+  }
+
+  void _rewind() {
+    final currentPosition = _controller!.value.position;
+    final rewindPosition = currentPosition - const Duration(seconds: 10);
+
+    _controller!.seekTo(
+      rewindPosition > Duration.zero ? rewindPosition : Duration.zero,
+    );
+
+    setState(() {
+      _isBuffering = false;
+    });
+
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) _checkBufferingState();
+    });
   }
 
   @override
@@ -245,9 +280,9 @@ class _SliderPlayerState extends State<SliderPlayer>
                           margin: const EdgeInsets.only(bottom: 20),
                           height: 60,
                           width: 60,
-                          child: CircularProgressIndicator(
+                          /*child: CircularProgressIndicator(
                             color: Colors.grey[600],
-                          ),
+                          ),*/
                         ),
                       ),
                     Positioned(

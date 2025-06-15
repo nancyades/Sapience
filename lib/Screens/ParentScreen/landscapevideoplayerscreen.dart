@@ -328,6 +328,7 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
                               sectionid: widget.sectionid,
                               subcatlen: widget.subcatlen,
                               subjectName: widget.subjectName,
+
                             ),
                             // transition: Transition.rightToLeft,
                             // duration: const Duration(milliseconds: 500),

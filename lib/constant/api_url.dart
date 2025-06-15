@@ -2,7 +2,10 @@
 
 class AppUrl {
 
-  static String baseUrl = "https://sapiencepublications.co.in/api";
+  static String baseUrl = "https://sapiencepublications.in/api";
+
+  static String testUrl = "https://www.sapiencepublications.co.in/api";
+
   static String getotpUrl(String phoneno) => "$baseUrl/generate?phone=$phoneno";
   static String getloginUrl(String phoneno, String otp) => "$baseUrl/login?phone=$phoneno&otp=$otp";
   static String getbookqrUrl(String qrcode) => "$baseUrl/book-qr-code-validate?qr_code=$qrcode";

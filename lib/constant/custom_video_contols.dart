@@ -16,7 +16,7 @@ class CustomControls extends StatefulWidget {
   const CustomControls({
     Key? key,
     required this.chewieController,
-    required this.showControls,
+     required this.showControls,
     required this.onForward,
     required this.onRewind,
     required this.isBuffering,
@@ -29,33 +29,7 @@ class CustomControls extends StatefulWidget {
 class _CustomControlsState extends State<CustomControls> {
   bool _dragging = false;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _updateSystemUIOverlay();
-  // }
-  //
-  // @override
-  // void didUpdateWidget(covariant CustomControls oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
-  //   _updateSystemUIOverlay();
-  // }
-  //
-  // void _updateSystemUIOverlay() {
-  //   if (widget.showControls) {
-  //     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-  //         overlays: SystemUiOverlay.values);
-  //   } else {
-  //     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-  //   }
-  // }
-  //
-  // @override
-  // void dispose() {
-  //   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-  //       overlays: SystemUiOverlay.values);
-  //   super.dispose();
-  // }
+
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +80,16 @@ class _CustomControlsState extends State<CustomControls> {
                             : Colors.grey.shade900.withOpacity(0.4),
                         shape: BoxShape.circle,
                       ),
-                      child: widget.isBuffering
+
+                      child: Icon(
+                        size: 60,
+                        widget.chewieController.isPlaying
+                            ? Icons.pause
+                            : Icons.play_arrow,
+                        color: Colors.white,
+                      ),
+
+                     /* child: widget.isBuffering
                           ? Icon(
                               color: Colors.transparent,
                               Icons.circle_outlined,
@@ -118,9 +101,23 @@ class _CustomControlsState extends State<CustomControls> {
                                   ? Icons.pause
                                   : Icons.play_arrow,
                               color: Colors.white,
-                            ),
+                            ),*/
                     ),
+
                     onPressed: widget.isBuffering
+
+                        ? () {
+                      setState(() {
+                        if (widget.chewieController.isPlaying) {
+                          widget.chewieController.pause();
+                        } else {
+                          widget.chewieController.play();
+                        }
+                      });
+                    }: null
+
+
+                    /* onPressed: widget.isBuffering
                         ? null
                         : () {
                             setState(() {
@@ -131,6 +128,9 @@ class _CustomControlsState extends State<CustomControls> {
                               }
                             });
                           },
+                    */
+
+
                   ),
                   IconButton(
                     icon: Container(
