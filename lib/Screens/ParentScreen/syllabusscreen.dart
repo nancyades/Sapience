@@ -1221,7 +1221,7 @@ class _SyllabusState extends ConsumerState<Syllabus>
                 ),
                 child: Column(
                   children: [
-                    ref.watch(addtermsNotifier).id.when(
+                   /* ref.watch(addtermsNotifier).id.when(
                       data: (snapshot) {
                         return Flexible(
                           child: Container(
@@ -1318,7 +1318,8 @@ class _SyllabusState extends ConsumerState<Syllabus>
                           ),
                         );
                       },
-                    ),
+                    ),*/
+                    Expanded(child: SizedBox(height: 30,)),
 
                     WeeksList(
                       section: widget.section.toString(),

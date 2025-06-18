@@ -189,16 +189,37 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
     final currentPosition = _controller!.value.position;
     final duration = _controller!.value.duration;
     final forwardPosition = currentPosition + const Duration(seconds: 10);
-    _controller!
-        .seekTo(forwardPosition < duration ? forwardPosition : duration);
+
+    // Skip false buffering display
+    _controller!.seekTo(forwardPosition < duration ? forwardPosition : duration);
+
+    // Suppress buffering indicator for 1 second
+    setState(() {
+      _isBuffering = false;
+    });
+
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) _checkBufferingState();
+    });
   }
 
   void _rewind() {
     final currentPosition = _controller!.value.position;
     final rewindPosition = currentPosition - const Duration(seconds: 10);
+
     _controller!.seekTo(
-        rewindPosition > Duration.zero ? rewindPosition : Duration.zero);
+      rewindPosition > Duration.zero ? rewindPosition : Duration.zero,
+    );
+
+    setState(() {
+      _isBuffering = false;
+    });
+
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) _checkBufferingState();
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -253,9 +274,9 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
                             margin: const EdgeInsets.only(bottom: 20),
                             height: 60,
                             width: 60,
-                            child: CircularProgressIndicator(
+                           /* child: CircularProgressIndicator(
                               color: Colors.grey[600],
-                            ),
+                            ),*/
                           ),
                         ),
                       Positioned(

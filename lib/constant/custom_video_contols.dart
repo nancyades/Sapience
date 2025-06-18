@@ -114,7 +114,15 @@ class _CustomControlsState extends State<CustomControls> {
                           widget.chewieController.play();
                         }
                       });
-                    }: null
+                    }: () {
+                      setState(() {
+                        if (widget.chewieController.isPlaying) {
+                          widget.chewieController.pause();
+                        } else {
+                          widget.chewieController.play();
+                        }
+                      });
+                    }
 
 
                     /* onPressed: widget.isBuffering
