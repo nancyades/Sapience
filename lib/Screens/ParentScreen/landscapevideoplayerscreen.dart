@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:better_player/better_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chewie/chewie.dart';
@@ -53,15 +54,11 @@ class LandscapeVideoViewer extends ConsumerStatefulWidget {
 
 class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
     with WidgetsBindingObserver {
+  BetterPlayerController? _betterPlayerController;
   bool isCarouselVisible = false; // State to track visibility
   bool _showControls = false;
-  bool _isBuffering = false;
   Timer? _hideTimer;
 
-  VideoPlayerController? _controller;
-  ChewieController? _chewieController;
-  bool _isVideoPlaying = false;
-  String? _error;
 
   void toggleCarouselVisibility() {
     // Toggle the state to show or hide the Carousel
@@ -82,7 +79,8 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
     setLandscape();
     WakelockPlus.enable();
 
-    _playVideo(widget.filePath!);
+    _initializePlayer(widget.filePath!);
+
   }
 
   void _startHideTimer() {
@@ -94,66 +92,26 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
     });
   }
 
-  void _playVideo(String path) async {
-    setState(() {
-      _error = null;
-      _isBuffering = true;
-    });
+  Future<void> _initializePlayer(String url) async {
+    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+      BetterPlayerDataSourceType.network,
+      url,
+    );
 
-    try {
-      if (_controller != null) {
-        _controller!.dispose();
-      }
-      if (_chewieController != null) {
-        _chewieController!.dispose();
-      }
+    _betterPlayerController?.dispose();
 
-      _controller = VideoPlayerController.networkUrl(Uri.parse(path));
-
-      await _controller!.initialize();
-      _controller!.addListener(_checkBufferingState);
-
-      setState(() {
-        _chewieController = ChewieController(
-          videoPlayerController: _controller!,
-          showControls: false,
-          autoPlay: true,
-          looping: false,
-          allowFullScreen: false,
-          allowedScreenSleep: true,
-
-          fullScreenByDefault: false,
-          aspectRatio: _controller!.value.aspectRatio,
-        );
-        _isVideoPlaying = true;
-        _isBuffering = false;
-      });
-
-      _controller!.addListener(() {
-        if (_controller!.value.position == _controller!.value.duration) {
-          setState(() {
-            _isVideoPlaying = false;
-          });
-        }
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isBuffering = false;
-      });
-    }
-  }
-
-  void _checkBufferingState() {
-    if (_controller!.value.isBuffering) {
-      setState(() {
-        _isBuffering = true;
-      });
-    } else {
-      setState(() {
-        _isBuffering = false;
-      });
-    }
+    _betterPlayerController = BetterPlayerController(
+      BetterPlayerConfiguration(
+        autoPlay: true,
+        aspectRatio: 16 / 9,
+        fit: BoxFit.contain,
+        controlsConfiguration: const BetterPlayerControlsConfiguration(
+          enableFullscreen: false,
+          enablePlaybackSpeed: false,
+        ),
+      ),
+      betterPlayerDataSource: dataSource,
+    );
   }
 
   void _toggleControls() {
@@ -167,13 +125,11 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
 
   @override
   void dispose() async {
+    _betterPlayerController?.dispose();
     GlobalState.activeScreen = null;
     WidgetsBinding.instance.removeObserver(this);
     WakelockPlus.disable();
     super.dispose();
-
-    _controller!.dispose();
-    _chewieController?.dispose();
     AudioService().playMusic();
   }
 
@@ -183,41 +139,6 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
       DeviceOrientation.landscapeRight,
     ]);
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-  }
-
-  void _forward() {
-    final currentPosition = _controller!.value.position;
-    final duration = _controller!.value.duration;
-    final forwardPosition = currentPosition + const Duration(seconds: 10);
-
-    // Skip false buffering display
-    _controller!.seekTo(forwardPosition < duration ? forwardPosition : duration);
-
-    // Suppress buffering indicator for 1 second
-    setState(() {
-      _isBuffering = false;
-    });
-
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) _checkBufferingState();
-    });
-  }
-
-  void _rewind() {
-    final currentPosition = _controller!.value.position;
-    final rewindPosition = currentPosition - const Duration(seconds: 10);
-
-    _controller!.seekTo(
-      rewindPosition > Duration.zero ? rewindPosition : Duration.zero,
-    );
-
-    setState(() {
-      _isBuffering = false;
-    });
-
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) _checkBufferingState();
-    });
   }
 
 
@@ -244,7 +165,6 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
         backgroundColor: Colors.black,
         body: Stack(
           children: <Widget>[
-            if (_controller != null && _controller!.value.isInitialized)
               GestureDetector(
                   onTap: _toggleControls,
                   onVerticalDragUpdate: (details) {
@@ -256,29 +176,8 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
                   },
                   child: Stack(
                     children: [
-                      Chewie(
-                        controller: _chewieController!,
-                      ),
-                      GestureDetector(
-                        child: CustomControls(
-                          chewieController: _chewieController!,
-                          showControls: _showControls,
-                          onForward: _forward,
-                          onRewind: _rewind,
-                          isBuffering: _isBuffering,
-                        ),
-                      ),
-                      if (_isBuffering)
-                        Center(
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 20),
-                            height: 60,
-                            width: 60,
-                           /* child: CircularProgressIndicator(
-                              color: Colors.grey[600],
-                            ),*/
-                          ),
-                        ),
+                      if (_betterPlayerController != null)
+                        BetterPlayer(controller: _betterPlayerController!),
                       Positioned(
                         top: 20,
                         left: 0,
@@ -310,8 +209,8 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
                         ),
                       ),
                     ],
-                  ))
-            else
+                  )),
+          /*  else
               Container(
                 decoration: BoxDecoration(
                   color: Colors.black,
@@ -364,7 +263,7 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
                     ),
                   ],
                 ),
-              ),
+              ),*/
             Consumer(
               builder: (context, ref, child) {
                 final videoState = ref.watch(addvideoNotifier);
@@ -415,7 +314,7 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
                                           widget.image = widget.image == null
                                               ? "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg"
                                               : fileimage.toString();
-                                          _playVideo(filePath);
+                                           await _initializePlayer(filePath);
 
                                         }  else {
                                           ConnectivityManager
@@ -438,7 +337,7 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
                                             widget.image = widget.image == null
                                                 ? "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg"
                                                 : i['image_url'].toString();
-                                            _playVideo(i['video_url']);
+                                            _initializePlayer(i['video_url']);
 
                                           }
                                         }
@@ -446,13 +345,10 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
 
 
 
-                                      // widget.image = widget.image == null
-                                      //     ? "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg"
-                                      //     : i['image_url'].toString();
-                                      //
-                                      // _playVideo(i['video_url']);
 
-                                      isCarouselVisible = false;
+                                      setState(() {
+                                        isCarouselVisible = false;
+                                      });
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.only(
@@ -555,22 +451,7 @@ class _LandscapeVideoViewerState extends ConsumerState<LandscapeVideoViewer>
                               builder: (BuildContext context) {
                                 return GestureDetector(
                                   onTap: () {
-                                    _controller =
-                                        VideoPlayerController.networkUrl(
-                                          Uri.parse(
-                                              "https://cdn.pixabay.com/video/2023/07/31/174003-850361299_large.mp4"),
-                                        );
 
-                                    _controller!.addListener(() {
-                                      setState(() {});
-                                    });
-                                    _controller!.setLooping(true);
-                                    _controller!.initialize().then((_) {
-                                      setState(() {});
-                                      AudioService().stopMusic();
-                                      _controller!.play();
-                                      setLandscape();
-                                    });
                                     isCarouselVisible = false;
                                   },
                                   child: Container(

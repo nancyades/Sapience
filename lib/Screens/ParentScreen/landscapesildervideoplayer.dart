@@ -112,6 +112,7 @@ class _LandscapeSilderplayerState extends State<LandscapeSilderplayer>
             showControls: false,
             autoPlay: true,
             looping: false,
+            autoInitialize: true,
             allowFullScreen: false,
             allowedScreenSleep: true,
             fullScreenByDefault: false,

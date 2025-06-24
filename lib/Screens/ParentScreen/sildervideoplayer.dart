@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:better_player/better_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chewie/chewie.dart';
@@ -42,8 +43,7 @@ class SliderPlayer extends StatefulWidget {
 
 class _SliderPlayerState extends State<SliderPlayer>
     with WidgetsBindingObserver {
-  VideoPlayerController? _controller;
-  ChewieController? _chewieController;
+  BetterPlayerController? _betterPlayerController;
   bool isCarouselVisible = false;
 
   bool _isVideoPlaying = false;
@@ -71,7 +71,7 @@ class _SliderPlayerState extends State<SliderPlayer>
     WidgetsBinding.instance.addObserver(this);
     setLandscape();
     WakelockPlus.enable();
-    _playVideo(widget.filePath!);
+    _initializePlayer(widget.filePath!);
   }
 
   void _startHideTimer() {
@@ -84,68 +84,26 @@ class _SliderPlayerState extends State<SliderPlayer>
       }
     });
   }
+  Future<void> _initializePlayer(String url) async {
+    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+      BetterPlayerDataSourceType.network,
+      url,
+    );
 
-  void _playVideo(String path) async {
-    if (mounted) {
-      setState(() {
-        _error = null;
-        _isBuffering = true;
-      });
-    }
+    _betterPlayerController?.dispose();
 
-    try {
-      if (_controller != null) {
-        _controller!.dispose();
-      }
-      if (_chewieController != null) {
-        _chewieController!.dispose();
-      }
-
-      _controller = VideoPlayerController.networkUrl(Uri.parse(path));
-
-      await _controller!.initialize();
-      _controller!.addListener(_checkBufferingState);
-      if (mounted) {
-        setState(() {
-          _chewieController = ChewieController(
-            videoPlayerController: _controller!,
-            showControls: false,
-            autoPlay: true,
-            looping: false,
-            allowFullScreen: false,
-            allowedScreenSleep: true,
-            fullScreenByDefault: false,
-          );
-          _isVideoPlaying = true;
-          _isBuffering = false;
-        });
-      }
-
-      _controller!.addListener(() {
-        if (_controller!.value.position == _controller!.value.duration) {
-          if (mounted) {
-            setState(() {
-              _isVideoPlaying = false;
-            });
-          }
-        }
-      });
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _isBuffering = false;
-        });
-      }
-    }
-  }
-
-  void _checkBufferingState() {
-    if (mounted) {
-      setState(() {
-        _isBuffering = _controller!.value.isBuffering;
-      });
-    }
+    _betterPlayerController = BetterPlayerController(
+      BetterPlayerConfiguration(
+        autoPlay: true,
+        aspectRatio: 16 / 9,
+        fit: BoxFit.contain,
+        controlsConfiguration: const BetterPlayerControlsConfiguration(
+          enableFullscreen: false,
+          enablePlaybackSpeed: false,
+        ),
+      ),
+      betterPlayerDataSource: dataSource,
+    );
   }
 
   void _toggleControls() {
@@ -159,63 +117,12 @@ class _SliderPlayerState extends State<SliderPlayer>
     }
   }
 
-/*  void _forward() {
-    final currentPosition = _controller!.value.position;
-    final duration = _controller!.value.duration;
-    final forwardPosition = currentPosition + const Duration(seconds: 10);
-    _controller!
-        .seekTo(forwardPosition < duration ? forwardPosition : duration);
-  }
-
-  void _rewind() {
-    final currentPosition = _controller!.value.position;
-    final rewindPosition = currentPosition - const Duration(seconds: 10);
-    _controller!.seekTo(
-        rewindPosition > Duration.zero ? rewindPosition : Duration.zero);
-  }*/
-
-  void _forward() {
-    final currentPosition = _controller!.value.position;
-    final duration = _controller!.value.duration;
-    final forwardPosition = currentPosition + const Duration(seconds: 10);
-
-    // Skip false buffering display
-    _controller!.seekTo(forwardPosition < duration ? forwardPosition : duration);
-
-    // Suppress buffering indicator for 1 second
-    setState(() {
-      _isBuffering = false;
-    });
-
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) _checkBufferingState();
-    });
-  }
-
-  void _rewind() {
-    final currentPosition = _controller!.value.position;
-    final rewindPosition = currentPosition - const Duration(seconds: 10);
-
-    _controller!.seekTo(
-      rewindPosition > Duration.zero ? rewindPosition : Duration.zero,
-    );
-
-    setState(() {
-      _isBuffering = false;
-    });
-
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) _checkBufferingState();
-    });
-  }
-
   @override
   void dispose() {
     GlobalState.activeScreen = null;
     WidgetsBinding.instance.removeObserver(this);
     _hideTimer?.cancel();
-    _controller?.dispose();
-    _chewieController?.dispose();
+    _betterPlayerController?.dispose();
     AudioService().playMusic();
     WakelockPlus.disable();
     SystemChrome.setPreferredOrientations([
@@ -252,7 +159,6 @@ class _SliderPlayerState extends State<SliderPlayer>
         backgroundColor: Colors.black,
         body: Stack(
           children: <Widget>[
-            if (_controller != null && _controller!.value.isInitialized)
               GestureDetector(
                 onTap: _toggleControls,
                 onVerticalDragUpdate: (details) {
@@ -264,27 +170,8 @@ class _SliderPlayerState extends State<SliderPlayer>
                 },
                 child: Stack(
                   children: [
-                    Chewie(
-                      controller: _chewieController!,
-                    ),
-                    CustomControls(
-                      chewieController: _chewieController!,
-                      showControls: _showControls,
-                      onForward: _forward,
-                      onRewind: _rewind,
-                      isBuffering: _isBuffering,
-                    ),
-                    if (_isBuffering)
-                      Center(
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 20),
-                          height: 60,
-                          width: 60,
-                          /*child: CircularProgressIndicator(
-                            color: Colors.grey[600],
-                          ),*/
-                        ),
-                      ),
+                    if (_betterPlayerController != null)
+                      BetterPlayer(controller: _betterPlayerController!),
                     Positioned(
                       top: 20,
                       left: 0,
@@ -310,8 +197,8 @@ class _SliderPlayerState extends State<SliderPlayer>
                     ),
                   ],
                 ),
-              )
-            else
+              ),
+          /*  else
               Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
@@ -355,7 +242,7 @@ class _SliderPlayerState extends State<SliderPlayer>
                     ),
                   ],
                 ),
-              ),
+              ),*/
             Consumer(
               builder: (context, ref, child) {
                 final videoState = ref.watch(getslidervideoNotifier);
@@ -376,7 +263,7 @@ class _SliderPlayerState extends State<SliderPlayer>
                             if (details.primaryDelta! < 0) {
                               if (!isCarouselVisible) toggleCarouselVisibility();
                             } else if (details.primaryDelta! > 0) {
-                              if (isCarouselVisible) toggleCarouselVisibility();
+                               if (isCarouselVisible) toggleCarouselVisibility();
                             }
                           },
                           child: CarouselSlider(
@@ -388,8 +275,12 @@ class _SliderPlayerState extends State<SliderPlayer>
                                       widget.image = widget.image == null
                                           ? "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg"
                                           : i['image_url'].toString();
-                                      _playVideo(i['video_url']);
-                                      isCarouselVisible = false;
+
+                                      //_playVideo(i['video_url']);
+                                      setState(() {
+                                        isCarouselVisible = false;
+                                      });
+                                      _initializePlayer(i['video_url']);
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.only(
@@ -492,26 +383,7 @@ class _SliderPlayerState extends State<SliderPlayer>
                               builder: (BuildContext context) {
                                 return GestureDetector(
                                   onTap: () {
-                                    _controller =
-                                        VideoPlayerController.networkUrl(
-                                      Uri.parse(
-                                          "https://cdn.pixabay.com/video/2023/07/31/174003-850361299_large.mp4"),
-                                    );
 
-                                    _controller!.addListener(() {
-                                      if (mounted) {
-                                        setState(() {});
-                                      }
-                                    });
-                                    _controller!.setLooping(true);
-                                    _controller!.initialize().then((_) {
-                                      if (mounted) {
-                                        setState(() {});
-                                        AudioService().stopMusic();
-                                        _controller!.play();
-                                        setLandscape();
-                                      }
-                                    });
                                     isCarouselVisible = false;
                                   },
                                   child: Container(
